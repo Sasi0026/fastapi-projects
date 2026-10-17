@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordWise AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f4ef;
+      --ink: #1f2a37;
+      --muted: #5b6573;
+      --teal: #2bb5a0;
+      --teal-dark: #1e7f71;
+      --accent: #d9772b;
+      --card: #ffffff;
+      --border: #e2e0d8;
+      --track: #ece9e1;
+      --warn-bg: #fdf6ee;
+      --warn-border: #e08a3c;
+      --warn-ink: #b25e17;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.5;
+      padding: 48px 16px 80px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    .brand {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 4px;
+      color: var(--teal);
+    }
+
+    h1 {
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      font-size: clamp(32px, 6vw, 48px);
+      line-height: 1.15;
+      margin: 8px 0 8px;
+    }
+    h1 span { color: var(--accent); }
+
+    .subtitle { color: var(--muted); margin-bottom: 32px; }
+
+    /* Search */
+    form { display: flex; gap: 12px; margin-bottom: 32px; }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      font: inherit;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--ink);
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--teal); }
+
+    select {
+      font: inherit;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+    }
+
+    button {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 0 28px;
+      border: none;
+      border-radius: 12px;
+      background: var(--teal-dark);
+      color: #fff;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    /* States */
+    .status { color: var(--muted); font-style: italic; }
+    .error {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-ink);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .hidden { display: none; }
+
+    /* Result */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+    }
+
+    .word-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 16px; margin-bottom: 16px; }
+    .word-head h2 {
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      font-size: 40px;
+      text-transform: capitalize;
+    }
+    .pronunciation { color: var(--muted); font-size: 20px; }
+    .pos {
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--teal-dark);
+      background: var(--track);
+      padding: 4px 12px;
+      border-radius: 10px;
+    }
+
+    .speak-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--teal-dark);
+    }
+    .speak-btn:hover { border-color: var(--teal); }
+
+    .definition { font-size: 22px; margin-bottom: 8px; }
+
+    .context-box {
+      margin-top: 20px;
+      background: var(--bg);
+      border-left: 4px solid var(--teal);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+    .context-box h3 { margin-bottom: 6px; }
+
+    section { margin-top: 28px; }
+    section h3 {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--teal-dark);
+      margin-bottom: 10px;
+    }
+
+    ul { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    li::marker { color: var(--teal); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 16px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+
+    .forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+    .form-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .form-item small {
+      display: block;
+      font-family: "Poppins", sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .mistakes li::marker { color: var(--accent); }
+
+    @media (max-width: 560px) {
+      body { padding-top: 32px; }
+      .card { padding: 24px; }
+      form { flex-direction: column; }
+      select { width: 100%; }
+      button { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">FASTAPI</div>
+    <h1>WordWise <span>AI</span></h1>
+    <p class="subtitle">Type any English word and get a clear, structured explanation.</p>
+
+    <form id="search-form">
+      <input id="word-input" type="text" placeholder="e.g. deadline" autocomplete="off" required>
+      <select id="context-select" aria-label="Your context">
+        <option value="general">General</option>
+        <option value="student">Student</option>
+        <option value="corporate">Corporate</option>
+        <option value="tech">Tech</option>
+      </select>
+      <button id="search-btn" type="submit">Search</button>
+    </form>
+
+    <p id="status" class="status hidden"></p>
+    <div id="error" class="error hidden"></div>
+
+    <article id="result" class="card hidden">
+      <div class="word-head">
+        <h2 id="word"></h2>
+        <span id="pronunciation" class="pronunciation"></span>
+        <button id="speak-btn" class="speak-btn" type="button" title="Hear pronunciation" aria-label="Hear pronunciation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+        <span id="part-of-speech" class="pos"></span>
+      </div>
+      <p id="definition" class="definition"></p>
+
+      <div class="context-box">
+        <h3 id="context-title">In your context</h3>
+        <p id="context-meaning"></p>
+      </div>
+
+      <section id="verb-forms-section">
+        <h3>Verb forms</h3>
+        <div id="verb-forms" class="forms"></div>
+      </section>
+
+      <section>
+        <h3>Examples</h3>
+        <ul id="examples"></ul>
+      </section>
+
+      <section>
+        <h3>Synonyms</h3>
+        <div id="synonyms" class="chips"></div>
+      </section>
+
+      <section>
+        <h3>Antonyms</h3>
+        <div id="antonyms" class="chips"></div>
+      </section>
+
+      <section>
+        <h3>Collocations</h3>
+        <div id="collocations" class="chips"></div>
+      </section>
+
+      <section>
+        <h3>Professional usage</h3>
+        <p id="professional-usage"></p>
+      </section>
+
+      <section>
+        <h3>Common mistakes</h3>
+        <ul id="common-mistakes" class="mistakes"></ul>
+      </section>
+    </article>
+  </div>
+
+  <script>
+    const form = document.getElementById("search-form");
+    const input = document.getElementById("word-input");
+    const contextSelect = document.getElementById("context-select");
+    const speakBtn = document.getElementById("speak-btn");
+    const button = document.getElementById("search-btn");
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    const resultEl = document.getElementById("result");
+
+    // Fill a <ul> with one <li> per item
+    function renderList(id, items) {
+      const el = document.getElementById(id);
+      el.innerHTML = "";
+      (items || []).forEach(text => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        el.appendChild(li);
+      });
+    }
+
+    // Fill a container with one chip per item
+    function renderChips(id, items) {
+      const el = document.getElementById(id);
+      el.innerHTML = "";
+      (items || []).forEach(text => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = text;
+        el.appendChild(chip);
+      });
+    }
+
+    // verb_forms is optional: hide the section for nouns, adjectives, etc.
+    function renderVerbForms(forms) {
+      const section = document.getElementById("verb-forms-section");
+      const el = document.getElementById("verb-forms");
+      el.innerHTML = "";
+      if (!forms) {
+        section.classList.add("hidden");
+        return;
+      }
+      section.classList.remove("hidden");
+      const labels = {
+        base: "Base",
+        past: "Past",
+        past_participle: "Past participle",
+        present_participle: "Present participle",
+        third_person: "3rd person",
+      };
+      Object.entries(labels).forEach(([key, label]) => {
+        const item = document.createElement("div");
+        item.className = "form-item";
+        const small = document.createElement("small");
+        small.textContent = label;
+        item.appendChild(small);
+        item.appendChild(document.createTextNode(forms[key] || "—"));
+        el.appendChild(item);
+      });
+    }
+
+    // Pronunciation audio: the browser's built-in text-to-speech, no API needed
+    speakBtn.addEventListener("click", () => {
+      const word = document.getElementById("word").textContent;
+      if (!word || !("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.85;
+      speechSynthesis.speak(utterance);
+    });
+    if (!("speechSynthesis" in window)) speakBtn.classList.add("hidden");
+
+    function renderWord(data, context) {
+      const contextLabel = contextSelect.querySelector(`option[value="${context}"]`).textContent;
+      document.getElementById("word").textContent = data.word;
+      document.getElementById("pronunciation").textContent = data.pronunciation;
+      document.getElementById("part-of-speech").textContent = data.part_of_speech;
+      document.getElementById("definition").textContent = data.definition;
+      document.getElementById("context-title").textContent = `As a ${contextLabel.toLowerCase()} learner`;
+      document.getElementById("context-meaning").textContent = data.context_meaning;
+      document.getElementById("professional-usage").textContent = data.professional_usage;
+
+      renderVerbForms(data.verb_forms);
+      renderList("examples", data.examples);
+      renderChips("synonyms", data.synonyms);
+      renderChips("antonyms", data.antonyms);
+      renderChips("collocations", data.collocations);
+      renderList("common-mistakes", data.common_mistakes);
+
+      resultEl.classList.remove("hidden");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const word = input.value.trim();
+      const context = contextSelect.value;
+      if (!word) return;
+
+      button.disabled = true;
+      resultEl.classList.add("hidden");
+      errorEl.classList.add("hidden");
+      statusEl.textContent = `Looking up "${word}"...`;
+      statusEl.classList.remove("hidden");
+
+      try {
+        // Call the FastAPI endpoint: GET /word/{term}?context=...
+        const res = await fetch(`/word/${encodeURIComponent(word)}?context=${context}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.detail || `Request failed (${res.status})`);
+        }
+        renderWord(data, context);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove("hidden");
+      } finally {
+        statusEl.classList.add("hidden");
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
